@@ -1,0 +1,73 @@
+{
+  "participant_name": "anonymous",
+  "problem_id": 9,
+  "problem_text": "How many characters are in this sentence, including the question mark?",
+  "attempt": true,
+  "n_prediction": 200,
+  "N": 200,
+  "answer": "ANSWER_HERE",
+  "ground_truth": "70",
+  "correct": false,
+  "total_output_tokens": 84,
+  "compaction_count": 11,
+  "compaction_log": [
+    {
+      "compaction_number": 1,
+      "pre_compaction_work": "H 1\n",
+      "compacted_context": "Solve without tools. Your full context window is restricted to 200 tokens. At 50% of this limit, you will be asked to compact. Answer format: {final_answer: \"ANSWER_HERE\"}\n\nHow many characters are in this sentence, including the question mark?\n\nH 1"
+    },
+    {
+      "compaction_number": 2,
+      "pre_compaction_work": "o 2\nw 3\nspace 4\nm 5\na 6\nn 7\ny 8\nspac",
+      "compacted_context": "Solve without tools. Your full context window is restricted to 200 tokens. At 50% of this limit, you will be asked to compact. Answer format: {final_answer: \"ANSWER_HERE\"}\n\nHow many characters are in this sentence, including the question mark?\n\n\"How many\"=8"
+    },
+    {
+      "compaction_number": 3,
+      "pre_compaction_work": "space 9\nc 10\nh 11\na 12\nr 13\na 14\nc 15\n",
+      "compacted_context": "Solve without tools. Your full context window is restricted to 200 tokens. At 50% of this limit, you will be asked to compact. Answer format: {final_answer: \"ANSWER_HERE\"}\n\nHow many characters are in this sentence, including the question mark?\n\n\"How many charac\"=15"
+    },
+    {
+      "compaction_number": 4,
+      "pre_compaction_work": "t 16\ne 17\nr 18\ns 19\nspace 20\na 21\nb ",
+      "compacted_context": "Solve without tools. Your full context window is restricted to 200 tokens. At 50% of this limit, you will be asked to compact. Answer format: {final_answer: \"ANSWER_HERE\"}\n\nHow many characters are in this sentence, including the question mark?\n\n\"How many characters a\"=21"
+    },
+    {
+      "compaction_number": 5,
+      "pre_compaction_work": "r 22\ne 23\nspace 24\ni 25\nn 26\nspace 27\nt ",
+      "compacted_context": "Solve without tools. Your full context is restricted to 200 tokens. At 50% of this limit, you will be asked to compact. Answer format: {final_answer: \"ANSWER_HERE\"}\n\nHow many characters are in this sentence, including the question mark?\n\n\"How many characters are in t\"=28"
+    },
+    {
+      "compaction_number": 6,
+      "pre_compaction_work": "h 29\ni 30\ns 31\nspace 32\ns 33\ne 34\nn",
+      "compacted_context": "Solve without tools. Your full context is restricted to 200 tokens. At 50% of this limit, you will be asked to compact. Answer format: {final_answer: \"ANSWER_HERE\"}\n\nHow many characters are in this sentence, including the question mark?\n\n\"...in this sen\"=35"
+    },
+    {
+      "compaction_number": 7,
+      "pre_compaction_work": "t 36\ne 37\nn 38\nc 39\ne 40\ncomma 41\nspace 4",
+      "compacted_context": "Solve without tools. Your full context is restricted to 200 tokens. At 50% of this limit, you will be asked to compact. Answer format: {final_answer: \"ANSWER_HERE\"}\n\nHow many characters are in this sentence, including the question mark?\n\n\"...in this sentence, \"=42"
+    },
+    {
+      "compaction_number": 8,
+      "pre_compaction_work": "i 43\nn 44\nc 45\nl 46\nu 47\nd 48\ni 49",
+      "compacted_context": "Solve without tools. Your full context is restricted to 200 tokens. At 50% of this limit, you will be asked to compact. Answer format: {final_answer: \"ANSWER_HERE\"}\n\nHow many characters are in this sentence, including the question mark?\n\n\"...this sentence, includi\"=49"
+    },
+    {
+      "compaction_number": 9,
+      "pre_compaction_work": "n 50\ng 51\nspace 52\nt 53\nh 54\ne 55\nspa",
+      "compacted_context": "Solve without tools. Your full context is restricted to 200 tokens. At 50% of this limit, you will be asked to compact. Answer format: {final_answer: \"ANSWER_HERE\"}\n\nHow many characters are in this sentence, including the question mark?\n\n\"...sentence, including the\"=55"
+    },
+    {
+      "compaction_number": 10,
+      "pre_compaction_work": "space 56\nq 57\nu 58\ne 59\ns 60\nt 61\ni ",
+      "compacted_context": "Solve without tools. Your full context is restricted to 200 tokens. At 50% of this limit, you will be asked to compact. Answer format: {final_answer: \"ANSWER_HERE\"}\n\nHow many characters are in this sentence, including the question mark?\n\n\"...including the questi\"=62"
+    },
+    {
+      "compaction_number": 11,
+      "pre_compaction_work": "o 63\nn 64\nspace 65\nm 66\na 67\nr 68\nk 6",
+      "compacted_context": "Solve without tools. Your full context is restricted to 200 tokens. At 50% of this limit, you will be asked to compact. Answer format: {final_answer: \"ANSWER_HERE\"}\n\nHow many characters are in this sentence, including the question mark?\n\n\"...the question mark\"=69"
+    }
+  ],
+  "work_text": "Your previous compaction:\n---\nSolve without tools. Your full context is restricted to 200 tokens. At 50% of this limit, you will be asked to compact. Answer format: {final_answer: \"ANSWER_HERE\"}\n\nHow many characters are in this sentence, including the question mark?\n\n\"...the question mark\"=69\n---\n\nContinue solving.\n? 70\n{final_answer: \"70\"}",
+  "wall_time_s": 2000.2,
+  "timestamp": "2026-04-07T15:17:58.702638+00:00"
+}

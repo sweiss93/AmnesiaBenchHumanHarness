@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AmnesiaBench — Human Evaluation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { 50:'#f0f9ff', 100:'#e0f2fe', 200:'#bae6fd', 300:'#7dd3fc', 400:'#38bdf8', 500:'#0ea5e9', 600:'#0284c7', 700:'#0369a1', 800:'#075985', 900:'#0c4a6e' },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        .prompt-block { white-space: pre-wrap; word-wrap: break-word; }
+        #work-area { resize: none; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .token-bar-track { background: #1e293b; border-radius: 9999px; overflow: hidden; }
+        .token-bar-fill { transition: width 0.3s ease, background-color 0.3s ease; border-radius: 9999px; }
+        .compaction-overlay { backdrop-filter: blur(4px); }
+    </style>
+</head>
+<body class="h-full bg-slate-950 text-slate-100">
+
+    <!-- ─── App Root ──────────────────────────────────────────────────────── -->
+    <div id="app" class="h-full flex flex-col">
+
+        <!-- Top Bar -->
+        <header class="bg-slate-900 border-b border-slate-800 px-6 py-3 flex items-center justify-between shrink-0">
+            <div class="flex items-center gap-3">
+                <h1 class="text-lg font-semibold text-brand-400">AmnesiaBench</h1>
+                <span class="text-xs text-slate-500 font-medium tracking-wider uppercase">Human Evaluation</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <label class="text-xs text-slate-400">Participant:
+                    <input id="participant-name" type="text" value="anonymous"
+                           class="ml-1 px-2 py-1 bg-slate-800 border border-slate-700 rounded text-sm text-slate-200 w-32 focus:outline-none focus:border-brand-500">
+                </label>
+                <button id="btn-results" onclick="showResults()"
+                        class="text-xs px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+                    View Results
+                </button>
+            </div>
+        </header>
+
+        <!-- ─── Phase: Welcome / Problem Select ───────────────────────────── -->
+        <div id="phase-select" class="flex-1 flex flex-col items-center justify-center p-8 fade-in">
+            <div class="max-w-2xl w-full">
+                <h2 class="text-2xl font-bold mb-2 text-slate-100">Select a Problem</h2>
+                <p class="text-sm text-slate-400 mb-6">You'll first predict whether you can solve the problem and at what context budget, then attempt it under that constraint.</p>
+                <div id="problem-list" class="space-y-2"></div>
+            </div>
+        </div>
+
+        <!-- ─── Phase: Prediction ─────────────────────────────────────────── -->
+        <div id="phase-prediction" class="flex-1 flex flex-col p-6 hidden fade-in">
+            <div class="max-w-3xl mx-auto w-full flex flex-col flex-1">
+                <h2 class="text-xl font-bold mb-4 text-slate-100">Phase 1: Prediction</h2>
+                <div class="bg-slate-900 border border-slate-800 rounded-lg p-5 mb-6 flex-1 overflow-auto">
+                    <pre id="prediction-prompt-text" class="prompt-block text-sm text-slate-300 mono leading-relaxed"></pre>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 rounded-lg p-5">
+                    <p class="text-xs text-slate-400 mb-2">Type your prediction response in the format shown in the prompt above:</p>
+                    <textarea id="prediction-response"
+                              class="w-full h-24 bg-slate-950 text-slate-200 text-sm mono p-4 rounded-lg border border-slate-700 focus:outline-none focus:border-brand-500 leading-relaxed mb-3">{attempt: output_True_or_False_here, N: output_N_value_here_or_output_0_if_attempt_is_False}</textarea>
+                    <div class="flex items-center justify-between">
+                        <span id="prediction-parse-status" class="text-xs text-slate-500"></span>
+                        <button id="btn-submit-prediction" onclick="submitPrediction()"
+                                class="px-5 py-1.5 rounded text-sm font-semibold bg-brand-600 hover:bg-brand-500 text-white transition">
+                            Submit Prediction →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── Phase: Evaluation ─────────────────────────────────────────── -->
+        <div id="phase-evaluation" class="flex-1 flex flex-col hidden fade-in">
+
+            <!-- Token Budget Bar -->
+            <div class="bg-slate-900 border-b border-slate-800 px-6 py-3 shrink-0">
+                <div class="flex items-center justify-between mb-1.5">
+                    <span class="text-xs font-medium text-slate-400">Context Budget</span>
+                    <div class="flex items-center gap-4">
+                        <span id="token-display" class="text-sm mono font-semibold text-slate-200">0 / 0 tokens</span>
+                        <span id="token-remaining" class="text-xs mono text-slate-500">0 remaining</span>
+                    </div>
+                </div>
+                <div class="token-bar-track h-3 w-full">
+                    <div id="token-bar" class="token-bar-fill h-full bg-emerald-500" style="width: 0%"></div>
+                </div>
+                <div class="flex items-center justify-between mt-1">
+                    <span class="text-xs text-slate-600">0%</span>
+                    <span id="compaction-marker" class="text-xs text-amber-500/60">▲ 50% — compaction trigger</span>
+                    <span class="text-xs text-slate-600">100%</span>
+                </div>
+            </div>
+
+            <!-- Main Content: Prompt + Work Area -->
+            <div class="flex-1 flex min-h-0">
+                <!-- Left: Evaluation Prompt (read-only) -->
+                <div class="w-2/5 border-r border-slate-800 flex flex-col">
+                    <div class="px-4 py-2 bg-slate-900/50 border-b border-slate-800 shrink-0">
+                        <span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Evaluation Prompt</span>
+                    </div>
+                    <div class="flex-1 overflow-auto p-4">
+                        <pre id="eval-prompt-text" class="prompt-block text-sm text-slate-300 mono leading-relaxed"></pre>
+                    </div>
+                </div>
+
+                <!-- Right: Work Area -->
+                <div class="flex-1 flex flex-col">
+                    <div class="px-4 py-2 bg-slate-900/50 border-b border-slate-800 shrink-0 flex items-center justify-between">
+                        <span class="text-xs font-medium text-slate-500 uppercase tracking-wider">Your Work</span>
+                        <span id="output-token-count" class="text-xs mono text-slate-500">0 output tokens</span>
+                    </div>
+                    <pre id="work-frozen" class="hidden bg-slate-900 text-slate-400 text-sm mono px-4 pt-4 pb-0 leading-relaxed whitespace-pre-wrap border-b border-slate-800 shrink-0 max-h-48 overflow-auto"></pre>
+                    <textarea id="work-area"
+                              class="flex-1 bg-slate-950 text-slate-200 text-sm mono p-4 focus:outline-none leading-relaxed border-none"
+                              placeholder="Type your reasoning and work here...&#10;&#10;When finished, include {final_answer: YOUR_ANSWER} and click Submit."></textarea>
+
+                    <!-- Answer submission -->
+                    <div class="bg-slate-900 border-t border-slate-800 px-4 py-3 shrink-0">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-slate-400">Include <code class="text-brand-400">{final_answer: YOUR_ANSWER_HERE}</code> in your work above, then click submit.</span>
+                            <button id="btn-submit" onclick="submitAnswer()"
+                                    class="px-5 py-2 rounded text-sm font-semibold bg-brand-600 hover:bg-brand-500 text-white transition">
+                                Submit Answer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ─── Phase: Result ─────────────────────────────────────────────── -->
+        <div id="phase-result" class="flex-1 flex flex-col items-center justify-center p-8 hidden fade-in">
+            <div id="result-card" class="max-w-lg w-full bg-slate-900 border border-slate-800 rounded-xl p-8 text-center">
+            </div>
+            <button onclick="backToSelect()" class="mt-6 px-5 py-2 rounded text-sm font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+                ← Back to Problems
+            </button>
+        </div>
+
+        <!-- ─── Phase: Results Table ──────────────────────────────────────── -->
+        <div id="phase-results-table" class="flex-1 flex flex-col p-8 hidden fade-in">
+            <div class="max-w-5xl mx-auto w-full">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-xl font-bold text-slate-100">Past Results</h2>
+                    <button onclick="backToSelect()" class="px-4 py-1.5 rounded text-sm bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition">
+                        ← Back
+                    </button>
+                </div>
+                <div id="results-table-container" class="overflow-auto rounded-lg border border-slate-800"></div>
+            </div>
+        </div>
+
+        <!-- ─── Compaction Modal ──────────────────────────────────────────── -->
+        <div id="compaction-modal" class="fixed inset-0 bg-black/60 compaction-overlay flex items-center justify-center z-50 hidden">
+            <div class="bg-slate-900 border border-amber-700/50 rounded-xl p-6 max-w-6xl w-full mx-4 shadow-2xl">
+                <div class="flex items-center gap-2 mb-4">
+                    <div class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+                    <h3 class="text-lg font-bold text-amber-400">Compaction Required</h3>
+                </div>
+                <div class="bg-slate-950 border border-slate-800 rounded-lg p-4 mb-4">
+                    <pre id="compaction-prompt-text" class="prompt-block text-sm text-slate-300 mono leading-relaxed"></pre>
+                </div>
+                <div class="flex gap-4">
+                    <!-- Left: full context (read-only) -->
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs text-slate-400 mb-2 font-medium">Full context to compact (read-only)</p>
+                        <pre id="compaction-current-work" class="w-full h-64 bg-slate-950 text-slate-300 text-sm mono p-4 rounded-lg border border-slate-700 leading-relaxed overflow-auto whitespace-pre-wrap"></pre>
+                    </div>
+                    <!-- Right: compaction input -->
+                    <div class="flex-1 min-w-0">
+                        <p class="text-xs text-slate-400 mb-2">Write your compacted context below. Only the content inside <code class="text-amber-400">&lt;compact&gt;...&lt;/compact&gt;</code> tags will be kept.</p>
+                        <textarea id="compaction-input"
+                                  class="w-full h-64 bg-slate-950 text-slate-200 text-sm mono p-4 rounded-lg border border-slate-700 focus:outline-none focus:border-amber-500 leading-relaxed"
+                                  placeholder="<compact>&#10;Write your compacted working notes here...&#10;</compact>"></textarea>
+                    </div>
+                </div>
+                <div class="flex items-center justify-between mt-4">
+                    <span id="compaction-token-count" class="text-xs mono text-slate-500">0 tokens</span>
+                    <button id="btn-compact" onclick="submitCompaction()"
+                            class="px-5 py-2 rounded text-sm font-semibold bg-amber-600 hover:bg-amber-500 text-white transition">
+                        Apply Compaction
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
