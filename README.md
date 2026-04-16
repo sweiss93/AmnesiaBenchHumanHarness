@@ -1,6 +1,8 @@
 # AmnesiaBench — Human Evaluation GUI
 
-A web-based interface for testing humans on the AmnesiaBench benchmark. Closely mirrors the prompts and workflow used for AI model evaluation on the AmnesiaBench benchmark on Kaggle (https://www.kaggle.com/benchmarks/tasks/sonphamorg/amnesiabench-v1-scott-25).
+A web-based interface for testing humans on the AmnesiaBench benchmark. Closely mirrors the prompts and workflow used for AI model evaluation on the [AmnesiaBench benchmark on Kaggle](https://www.kaggle.com/benchmarks/tasks/sonphamorg/amnesiabench-v1-scott-25)
+
+![Screenshot](assets/screenshot.png)
 
 ## Setup
 
